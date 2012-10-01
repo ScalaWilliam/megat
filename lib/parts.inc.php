@@ -33,6 +33,7 @@ function view_index_xml($all, $db) {
 
 function view_index_render_html($stmt) {
     $tpl = template();
+    $tpl->remove('//div[@id=\'item-single\']');
     $htmlitem = $tpl->repeat("//div[@id='item-list']/ol/li");
     while ( $item = $stmt->fetch() ) {
         $htmlitem->setValue('.', $item->message);
@@ -40,17 +41,44 @@ function view_index_render_html($stmt) {
     }
     echo $tpl->html();
 }
+function sa() {
+    $args = func_get_args();
+    if ( count($args) %2 == 0 ) return;
+    $o = array_shift($args);
+    while(!empty($args)) {
+        $o->setAttribute(array_shift($args), array_shift($args));
+    }
+}
 function view_index_render_xml($stmt) {
     $dom = new DOMDocument;
     $dom->loadXML('<'.'?xml version="1.0" encoding="utf-8"?><feed xmlns="'.XMLNS.'"></feed>');
-    
+    $ce = function($tag, $value, $parent = null) use ($dom) {
+        $e = $dom->createElement($tag);
+        if ( $value ) 
+            $e->appendChild($dom->createTextNode($value));
+        if (!$parent)
+            $parent = $dom->documentElement;
+        $parent->appendChild($e);
+        return $e;
+    };
+    $dom->formatOutput = true;
+    $ce('title', config('title'));
+    $ce('id', config('xml-id'));
+    $o = $ce('link', null); sa($o, 'type', 'application/atom+xml', 'rel', 'self', 'href', config('feed'));
+    $p = $ce('link', null); sa($p, 'type', 'index/html', 'rel','alternate','href',config('index'));
+    $updated = null;
     while($item = $stmt->fetch()) {
         $xml = @simplexml_load_string($item->atomXML);
         if (!$xml) continue;
+        if ( !$updated )
+            $updated = $ce('updated', $xml->published);
         $ndom = dom_import_simplexml($xml);
         $node = $dom->importNode($ndom, true);
+        $l = $ce('link', null, $node); sa($l, 'rel', 'self', 'href', item_xml_url($xml->id), 'type', 'application/atom+xml;type=entry');
+        //$m = $ce('link', null, $node); sa($m, 'rel', 'alternate', 'href', item_url($xml->id), 'type', 'text/html');
         $dom->documentElement->appendChild($node);
     }
+    if ( !$updated ) $ce('updated', date('c'));
     //header("Content-type: application/atom+xml");
     echo $dom->saveXML();
 }
@@ -64,7 +92,7 @@ function atomxml_load_string($data) {
 
 function atom_entry($message = null) {
     $data = '<entry xmlns="'.XMLNS.'"><published></published><author><name></name></author><title></title><summary></summary><id></id><!--<source><id></id><author><name></name></author><title></title></source>--></entry>';
-    $data = '<entry xmlns="'.XMLNS.'"><published></published><author><name></name></author><title></title><summary></summary><id></id></entry>';
+    $data = '<entry xmlns="'.XMLNS.'"><published></published><updated></updated><author><name></name></author><title></title><summary></summary><id></id></entry>';
     $xml = @simplexml_load_string($data) or die(view_400("Could not initialise message."));
     if ( $message ) {
         $xml->title = $message;
@@ -108,6 +136,7 @@ function action_post_new($data, $db) {
     $db->beginTransaction();
     $xml->id = generate_tag($db);
     $xml->published = date('c');
+    $xml->updated = date('c');
     $xml->author->name = AUTHOR_NAME;
     if ( !my_message_insert($xml, $db) ) {
         $db->rollback();

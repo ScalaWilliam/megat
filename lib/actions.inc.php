@@ -8,7 +8,10 @@ function _atomxml_load_string($data) {
 }
 
 function form_feed($f, $sql) {
-  $domfeed = dom_import_simplexml($f);
+    $ff = clone $f;
+    $ff->addChild('title', TITLE);
+    $ff->id = TAG.",main,".TAG_POSTFIX;
+  $domfeed = dom_import_simplexml($ff);
   $dom = new DOMDocument;
   $feednode = $dom->importNode($domfeed, true);
   $dom->appendChild($feednode);

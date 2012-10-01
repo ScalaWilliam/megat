@@ -17,11 +17,14 @@ function http_auth($opaque = 'opaque', $realm = 'Authentication',
             'opaque="'.$http_opaque.'"'
         );
     header('HTTP/1.0 401 Unauthorized');
+    echo "Unauthorized.\n";
     exit;
     return true;
   };
-  $auth = function($users, $require) use ($send, $http_nonce, $http_opaque, $realm, $baseURL, $hashed, $privateKey) {
-    $ret = function() use($send, $require) { return $require && !$send(); };
+  $auth = function($users, $require, $send2=null) use ($send, $http_nonce, $http_opaque, $realm, $baseURL, $hashed, $privateKey) {
+      $sendf = isset($send2) ? $send2 : $send;
+      
+    $ret = function() use($sendf, $require) { return $require && !$sendf(); };
 
     if(!isset($_SERVER['PHP_AUTH_DIGEST']))
       return $ret();

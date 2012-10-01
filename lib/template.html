@@ -1,18 +1,56 @@
 <html>
 <head>
-<title>x</title></head>
+<title>x</title>
+<link rel="alternate" type="application/atom+xml" title="" href=""/>
+<style>
+body {
+    background:rgb(245,245,245);
+    font-family:Sans-serif;
+    font-size:80%;
+}
+article {
+    margin-top:15em;
+    width:40em;
+    padding:3em;
+    background:white;
+    border:3px solid #333;
+    border-radius:3em;
+    margin-left:auto;
+    margin-right:auto;
+    position:relative;
+}
+header {
+    position:absolute;
+    border:3px solid #333;
+    border-radius:2em;
+    width:50%;
+    background:#ccc;
+    padding:2em;
+    top:-8em;
+    right:-10em;
+}
+#item-list h2 { display:none }
+#item-list ol { list-style-type:none;padding-left:0; }
+#item-list ol li {
+    padding:1em;
+    border:1px solid gray;
+    border-bottom-width:0;
+}
+#item-list ol li:last-child { border-bottom-width:1px }
+#item-list ol li:hover { background:rgb(245,245,255); }
+</style>
+</head>
 <body>
-
-<form id="subscribe-to" method="post" enctype="multipart/form-data">
-<h2>Subscribe to</h2>
-<input type="url" name="url" placeholder="Enter feed URL"/>
-<input type="submit" value="Subscribe"/>
-</form>
-
+<article>
+<header>
+<h1>.</h1>
+<p>This is a lightweight PHP microblogging solution built on top of PHP 5.3 and SQLite 3.</p>
+<p>Currently one can post and delete messages in an Atom format. This is the <a href="">feed URL</a>.</p>
+</header>
 <form id="post-message" method="post" enctype="multipart/form-data">
 <h2>Post a message</h2>
 <input type="text" name="message" placeholder="Enter message"/>
-<input type="submit" value="Tweet"/>
+<input type="submit" value="Post it"/>
 </form>
 
 <div id="item-single">
@@ -26,5 +64,6 @@
 <li>K</li>
 </ol>
 </div>
+</article>
 </body>
 </html>

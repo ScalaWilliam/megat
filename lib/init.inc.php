@@ -13,9 +13,19 @@ define("XMLNS", "http://www.w3.org/2005/Atom");
 function config($name) {
     if ( $name === 'public' ) { return false; }
     if ( $name === 'in_public' ) { return true; }
+    if ( $name === 'feed' ) { return HTTP_ROOT.'?collection=my&xml=true'; }
+    if ( $name === 'index' ) { return HTTP_ROOT; }
+    if ( $name === 'xml-id' ) { return TAG.",".BEGIN_DATE.":".TAG_POSTFIX."main"; }
+    if ( $name === 'title' ) { return TITLE; }
     throw new Exception("Config name '{$name}' unrecognised");
 }
 
+function item_url($id) {
+    return HTTP_ROOT.'?id='.$id;
+}
+function item_xml_url($id) {
+    return HTTP_ROOT.'?id='.$id.'&xml=true';
+}
 if ( !function_exists("init_me") )
   trigger_error("init_me does not exist", E_USER_ERROR);
 

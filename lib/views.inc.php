@@ -4,7 +4,8 @@ require_once "domtemplate.php";
 
 function template() {
   $template = new DOMTemplate(file_get_contents("lib/template.html"));
-  $template->setValue('//title', TITLE);
+  $template->setValue('//title | //h1 | //link[@rel=\'alternate\' and @type=\'application/atom+xml\']/@title', TITLE);
+  $template->setValue('//link[@rel=\'alternate\' and @type=\'application/atom+xml\']/@href | //header/p[2]/a/@href', config('feed'));
   return $template;
 }
 function view_xml_my($db) {
